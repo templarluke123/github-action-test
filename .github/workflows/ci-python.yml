@@ -1,8 +1,8 @@
-name: CI - Python (pytest)
+name: CI - Python (pytest + Selenium)
 
 on:
   push:
-    branches: [ main ]   # 只在 main 分支 push 時跑
+    branches: [ main ]
   pull_request:
   workflow_dispatch:
 
@@ -33,6 +33,18 @@ jobs:
         run: chrome --version
 
       - name: Run pytest
+        env:
+          # 可選：若你有私有測站，改用 Secrets 傳入
+          # ROUTER_URL: ${{ secrets.ROUTER_URL }}
         run: pytest -q
 
-
+      - name: Upload artifacts (logs/screenshots)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-artifacts
+          path: |
+            screenshots/**
+            logs/**
+            *.log
+          if-no-files-found: ignore
